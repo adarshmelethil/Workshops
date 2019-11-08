@@ -161,6 +161,9 @@ class World():
   def __getitem__(self, x):
     return self.world[x]
 
+  def getGrid(self):
+    return self.world
+
   def _boardingCells(self, first_cell, second_cell):
     return sum([abs(first_cell[0]-second_cell[0]), abs(first_cell[1]-second_cell[1])]) <= 1 # 0 if paths repeat
   def drawPath(self, path, color="green"):
