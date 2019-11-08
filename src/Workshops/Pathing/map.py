@@ -10,11 +10,11 @@ CUR_POS = "*"
 OBJ_POS = "@"
 
 class World():
-  def __init__(self, size=50, obsticles=500, start_pos=(0,0), end_pos=(49,49)):
+  def __init__(self, size=50, obsticles=500, start_pos=(0,0), end_pos=(49,49), var=None):
     self.size = size
     self.cur_pos, self.obj_pos = start_pos, end_pos
 
-    self.regenerate(size=size, obsticles=obsticles, start_pos=start_pos, end_pos=end_pos)
+    self.regenerate(size=size, obsticles=obsticles, start_pos=start_pos, end_pos=end_pos, var=var)
     
     self.draw_color = {
       WALL: "white",
@@ -36,14 +36,23 @@ class World():
   def isObjective(self, x, y):
     return self.obj_pos == (x, y)
 
-  def regenerate(self, size, obsticles, start_pos, end_pos):
+  def clampVal(self, val, mi, ma):
+    return max(mi, min(ma, val))
+
+  def getRandomPoint(self, size, var=None):
+    if var:
+      return self.clampVal(int(random.normalvariate(size/2, size*var)), 0, size-1), self.clampVal(int(random.normalvariate(size/2, size*var)), 0, size-1)
+    else:
+      return random.randint(0, size-1), random.randint(0, size-1)
+
+  def regenerate(self, size, obsticles, start_pos, end_pos, var):
     self.world = [[OPEN]*size for _ in range(size)]
     
     possible_path = self._AStarFindPath()
     obsticle_count = 0
     while obsticle_count < obsticles:
-      x = random.randint(0, size-1)
-      y = random.randint(0, size-1)
+      x, y = self.getRandomPoint(size, var=var)
+      
       if self.world[x][y] != OPEN:
         continue
 
