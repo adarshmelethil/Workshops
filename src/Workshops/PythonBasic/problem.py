@@ -1,6 +1,6 @@
 
-from game import createMaze, printMaze, drawMaze, checkSolution
-from game import START, END, WALL, OPEN
+from .game import createMaze, printMaze, drawMaze, checkSolution
+from .game import START, END, WALL, OPEN
 
 def myAnswer(maze, pen=None):
   cur_pos = (1, 1)

@@ -16,10 +16,19 @@ class Pen(turtle.Turtle):
 
     self.old_tracer = turtle.tracer()
     self.old_delay = turtle.delay()
+    self.all_stamps = []
 
-  def noDelay(self):
-    self.delay = False
-    turtle.tracer(0, 0)
+  def stampAtPos(self, x, y, color="blue"):
+    self.setColor(color)
+    self.moveTo(x, y)
+    stampid = self.stamp()
+    self.all_stamps.append(((x, y), stampid))
+
+  def undoStampTil(self, x=-1, y=-1):
+    while self.all_stamps:
+      pos, stampid = self.all_stamps.pop()
+      if pos == (x, y):
+        break
 
   def delay(self):
     turtle.tracer(self.old_tracer, self.old_delay)
@@ -51,6 +60,14 @@ class Pen(turtle.Turtle):
   def goOffScreen(self):
     self.goto(*self.mazeCoorToScreenCoor(-1, -1))
 
+  def removeDelay(self):
+    turtle.tracer(0, 0)
+    noDelay = True
+  def updateScreen(self):
+    turtle.update()
+  def addDelay(self):
+    turtle.tracer(self.old_tracer, self.old_delay)
+    noDelay = False
 
 def drawWorld(maze, start_pos, end_pos, obsticle_map, bgcolor="black"):
   wn = turtle.Screen()
