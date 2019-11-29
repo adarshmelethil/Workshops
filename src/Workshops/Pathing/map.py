@@ -10,7 +10,8 @@ CUR_POS = "*"
 OBJ_POS = "@"
 
 class World():
-  def __init__(self, size=50, obsticles=500, start_pos=(0,0), end_pos=(49,49), var=None):
+  def __init__(self, size=50, obsticles=500, start_pos=(0,0), end_pos=(49,49), var=None, verbose=False):
+    self.verbose = verbose
     self.size = size
     self.cur_pos, self.obj_pos = start_pos, end_pos
 
@@ -41,7 +42,7 @@ class World():
 
   def getRandomPoint(self, size, var=None):
     if var:
-      return self.clampVal(int(random.normalvariate(size/2, size*var)), 0, size-1), self.clampVal(int(random.normalvariate(size/2, size*var)), 0, size-1)
+      return self.clampVal(int(random.gauss(size/2, size*var)), 0, size-1), self.clampVal(int(random.gauss(size/2, size*var)), 0, size-1)
     else:
       return random.randint(0, size-1), random.randint(0, size-1)
 
@@ -50,22 +51,26 @@ class World():
     
     possible_path = self._AStarFindPath()
     obsticle_count = 0
+    miss_count = 0
     while obsticle_count < obsticles:
       x, y = self.getRandomPoint(size, var=var)
-      
-      if self.world[x][y] != OPEN:
-        continue
+      if self.verbose:
+        print(f"Obsiticles places: {obsticle_count:4d}/{obsticles:4d}, Missed: {miss_count:4d}", file=sys.stderr, end="\r")
 
-      if (x,y) in possible_path:
-        self.world[x][y] = WALL
-        possible_path = self._AStarFindPath()
-        if possible_path is None:
-          self.world[x][y] = OPEN
-          possible_path = self._AStarFindPath()
-          continue
+      if self.world[x][y] != OPEN:
+        miss_count += 1
+        continue
 
       self.world[x][y] = WALL
       obsticle_count += 1
+
+      if (x,y) in possible_path:
+        possible_path = self._AStarFindPath() # find new path
+        if possible_path is None: # no path found
+          self.world[x][y] = OPEN # undo and try again
+          obsticle_count -= 1
+          possible_path = self._AStarFindPath()
+          continue
 
   def getNeighbours(self, x, y):
     size_x, size_y = len(self.world), len(self.world[0])
